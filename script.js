@@ -170,6 +170,18 @@ const COMPETITOR_WEBSITES = {
     // Adding generic fallbacks or assumed structures if needed, but keeping it clean to knowns first.
 };
 
+// Coordinate Overrides for Precision
+const FIXED_COORDINATES = {
+    "KOA Journey": { lat: 42.1774, lng: -123.6436 },
+    "Laughing Alpaca": { lat: 42.1357, lng: -123.6637 },
+    "Ol' Jo": { lat: 42.1750, lng: -123.6619 },
+    "Lone Mountain RV": { lat: 42.0671, lng: -123.7054 },
+    "Out 'n' About Treehouse Treesort": { lat: 42.0319, lng: -123.6218 },
+    "Vertical Horizons Treehouse": { lat: 42.0926, lng: -123.5937 },
+    "Kerbyville Inn": { lat: 42.1966, lng: -123.6517 }, // Updated precise location
+    "The Lodge at Riverside": { lat: 42.4357, lng: -123.3324 }
+};
+
 const DIRECT_LOCATIONS = ['cave junction', 'kerby', "o'brien", 'selma'];
 
 function renderCompetitors() {
@@ -200,6 +212,12 @@ function renderCompetitors() {
         const distB = calculateDistance(CONFIG.target.lat, CONFIG.target.lng, b.lat, b.lng);
         return distA - distB;
     }).forEach(comp => {
+        // Apply coordinate overrides
+        if (FIXED_COORDINATES[comp['Property Name']]) {
+            comp.lat = FIXED_COORDINATES[comp['Property Name']].lat;
+            comp.lng = FIXED_COORDINATES[comp['Property Name']].lng;
+        }
+
         if (!comp.lat || !comp.lng) return;
 
         const isRV = (comp['Property Name'] + (comp['Notes'] || '')).toLowerCase().includes('rv') ||
