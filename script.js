@@ -190,18 +190,50 @@ window.setFilter = (type) => {
     renderCompetitors();
 };
 
+// Image Mapping
+const COMPETITOR_IMAGES = {
+    "KOA Journey": "https://koa.com/content/campgrounds/cave-junction/header/header-3.jpg",
+    "Laughing Alpaca": "https://www.laughingalpacacampground.com/img/slider/slide3.jpg",
+    "Ol' Jo": "https://oljorvcampground.com/img/River.jpg",
+    "Lone Mountain RV": "https://www.lonemountainresort.com/images/slider/slide1.jpg",
+    "Out 'n' About Treehouse Treesort": "https://treehouseparadise.com/wp-content/uploads/2016/06/majestree-1.jpg",
+    "Kerbyville Inn": "https://www.kerbyvilleinn.com/images/slider/slide1.jpg",
+    "Vertical Horizons Treehouse": "https://treehouseparadise.com/wp-content/uploads/2016/06/majestree-1.jpg" // Fallback/Placeholder
+};
+
+// Direct Competitor Locations
+const DIRECT_LOCATIONS = ['cave junction', 'kerby', "o'brien", 'selma'];
+
 function renderCompetitors() {
-    // Clear existing
+    // Clear existing markers
     competitorMarkers.forEach(m => map.removeLayer(m));
     competitorMarkers = [];
+
+    // Get Containers
     const listContainer = document.getElementById('competitor-list');
-    listContainer.innerHTML = '';
+    listContainer.innerHTML = ''; // We will rebuild this
 
     if (typeof COMPETITORS === 'undefined') return;
 
-    let totalUnits = 0;
+    let directUnits = 0;
+    let ancillaryUnits = 0;
 
-    COMPETITORS.forEach(comp => {
+    // Create Sub-Lists
+    const directList = document.createElement('div');
+    directList.innerHTML = '<h3>Direct Competitors</h3>';
+
+    const ancillaryList = document.createElement('div');
+    ancillaryList.innerHTML = '<h3>Ancillary Competitors</h3>';
+
+    let hasDirect = false;
+    let hasAncillary = false;
+
+    COMPETITORS.sort((a, b) => {
+        // Sort by distance
+        const distA = calculateDistance(CONFIG.target.lat, CONFIG.target.lng, a.lat, a.lng);
+        const distB = calculateDistance(CONFIG.target.lat, CONFIG.target.lng, b.lat, b.lng);
+        return distA - distB;
+    }).forEach(comp => {
         if (!comp.lat || !comp.lng) return;
 
         // Filter Check
@@ -211,11 +243,16 @@ function renderCompetitors() {
         if (currentFilter === 'rv' && !isRV) return;
         if (currentFilter === 'hotel' && isRV) return;
 
+        // Determine Type
+        const loc = (comp['Location'] || '').toLowerCase();
+        const isDirect = DIRECT_LOCATIONS.some(l => loc.includes(l));
+
         // Stats
         const rooms = parseInt(comp['Room Count']) || 0;
-        totalUnits += rooms;
+        if (isDirect) directUnits += rooms;
+        else ancillaryUnits += rooms;
 
-        // Marker with Rich Tooltip
+        // Marker
         const marker = L.marker([comp.lat, comp.lng], { icon: competitorIcon })
             .addTo(map)
             .bindTooltip(`
@@ -224,7 +261,7 @@ function renderCompetitors() {
                     ${rooms ? rooms + ' Units' : ''} 
                     ${comp['ADR'] ? '<br>ADR: $' + comp['ADR'] : ''}
                 </div>
-            `, { direction: 'top', offset: [0, -40] }) // Hover tooltip
+            `, { direction: 'top', offset: [0, -40] })
             .on('click', () => {
                 selectProperty(comp);
                 map.flyTo([comp.lat, comp.lng], 13);
@@ -236,6 +273,7 @@ function renderCompetitors() {
         // List Item
         const listItem = document.createElement('div');
         listItem.className = 'competitor-item';
+        // Add minimal thumb if direct?
         listItem.innerHTML = `
             <div class="comp-name">${comp['Property Name']}</div>
             <div class="comp-meta">
@@ -248,11 +286,33 @@ function renderCompetitors() {
             map.flyTo([comp.lat, comp.lng], 13);
             marker.openTooltip();
         });
-        listContainer.appendChild(listItem);
+
+        if (isDirect) {
+            directList.appendChild(listItem);
+            hasDirect = true;
+        } else {
+            ancillaryList.appendChild(listItem);
+            hasAncillary = true;
+        }
     });
 
+    if (hasDirect) listContainer.appendChild(directList);
+    if (hasAncillary) listContainer.appendChild(ancillaryList);
+
     // Update Dashboard Stats
-    document.getElementById('stat-total-units').innerText = totalUnits;
+    // We need to split the stats logic in HTML or just reuse ids
+    // For now, let's inject into the existing or new IDs
+    const totalEl = document.getElementById('stat-total-units');
+    if (totalEl) totalEl.innerText = directUnits + ancillaryUnits;
+
+    // We will update the DOM in index.html to have separate counters, 
+    // but for safety check if they exist
+    const directEl = document.getElementById('stat-direct-units');
+    const ancillaryEl = document.getElementById('stat-ancillary-units');
+
+    if (directEl) directEl.innerText = directUnits;
+    if (ancillaryEl) ancillaryEl.innerText = ancillaryUnits;
+
     document.getElementById('stat-count').innerText = competitorMarkers.length;
 }
 
@@ -297,6 +357,10 @@ function selectProperty(data) {
     const adrDisplay = data['ADR'] ? `<div class="stat-item"><span class="label">ADR</span><span class="value">$${data['ADR']}</span></div>` : '';
     const notesDisplay = data['Notes'] ? `<div class="notes-section"><h4>Notes</h4><p>${data['Notes']}</p></div>` : '';
 
+    // Image Logic
+    const imageUrl = COMPETITOR_IMAGES[data['Property Name']] || null;
+    const imageHtml = imageUrl ? `<div class="image-gallery"><img src="${imageUrl}" class="property-img" alt="${data['Property Name']}"></div>` : '';
+
     container.innerHTML = `
         <div class="stat-card competitor-card active-card">
             <div class="card-header">
@@ -304,6 +368,8 @@ function selectProperty(data) {
                 <span class="badge competitor-badge">Competitor</span>
             </div>
             
+            ${imageHtml}
+
             <div class="stat-grid">
                 <div class="stat-item">
                     <span class="label">Distance</span>
