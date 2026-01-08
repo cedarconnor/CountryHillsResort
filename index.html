@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Country Hills Resort - Competitive Landscape</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="app">
+        <div id="sidebar" class="glass-panel">
+            <header>
+                <h1>Country Hills Resort</h1>
+                <p class="subtitle">Competitive Landscape Analysis</p>
+            </header>
+
+            <div id="controls">
+                <div class="control-group">
+                    <label>Market Filter</label>
+                    <div class="btn-group">
+                        <button class="filter-btn active" id="btn-f-all" onclick="setFilter('all')">All</button>
+                        <button class="filter-btn" id="btn-f-rv" onclick="setFilter('rv')">RV Parks</button>
+                        <button class="filter-btn" id="btn-f-hotel" onclick="setFilter('hotel')">Hotels</button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Radius Analysis</label>
+                    <div class="btn-group">
+                        <button class="radius-btn" id="btn-r-5" onclick="toggleRadius(5)">5 Mi</button>
+                        <button class="radius-btn" id="btn-r-10" onclick="toggleRadius(10)">10 Mi</button>
+                        <button class="radius-btn" id="btn-r-15" onclick="toggleRadius(15)">15 Mi</button>
+                        <button class="radius-btn active" onclick="toggleRadius(0)">Off</button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Traffic Analysis</label>
+                    <button class="btn-secondary active" id="btn-routes" onclick="toggleRoutes()"
+                        style="margin-top: 0;">Show Tourist Flows</button>
+                </div>
+            </div>
+
+            <div id="market-summary">
+                <div class="summary-item">
+                    <span class="sum-label">Competitors</span>
+                    <span class="sum-val" id="stat-count">-</span>
+                </div>
+                <div class="summary-item">
+                    <span class="sum-label">Total Units</span>
+                    <span class="sum-val" id="stat-total-units">-</span>
+                </div>
+            </div>
+
+            <div id="competitor-list-section">
+                <h3 class="section-title">Competitive Set</h3>
+                <div id="competitor-list">
+                    <!-- List items will be injected here -->
+                </div>
+            </div>
+
+            <div id="comparison-container">
+                <p class="placeholder-text">Select a property on the map or list to view details.</p>
+            </div>
+
+            <footer>
+                <button id="reset-view" class="btn-primary">Reset View</button>
+            </footer>
+        </div>
+        <div id="map"></div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
