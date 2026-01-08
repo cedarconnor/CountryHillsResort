@@ -150,13 +150,14 @@ window.setFilter = (type) => {
 
 // Image Mapping
 const COMPETITOR_IMAGES = {
-    "KOA Journey": "https://placehold.co/600x400/2c3e50/ffffff?text=KOA+Journey",
-    "Laughing Alpaca": "https://placehold.co/600x400/2c3e50/ffffff?text=Laughing+Alpaca",
-    "Ol' Jo": "https://placehold.co/600x400/2c3e50/ffffff?text=Ol'+Jo+RV",
-    "Lone Mountain RV": "https://placehold.co/600x400/2c3e50/ffffff?text=Lone+Mountain",
-    "Out 'n' About Treehouse Treesort": "https://placehold.co/600x400/2c3e50/ffffff?text=Treehouse",
-    "Kerbyville Inn": "https://placehold.co/600x400/2c3e50/ffffff?text=Kerbyville+Inn",
-    "Vertical Horizons Treehouse": "https://placehold.co/600x400/2c3e50/ffffff?text=Vertical+Horizons"
+    "KOA Journey": "assets/images/rv_park_modern.png",
+    "Laughing Alpaca": "assets/images/rv_park_rustic.png",
+    "Ol' Jo": "assets/images/riverfront_camping.png",
+    "Lone Mountain RV": "assets/images/rv_park_rustic.png",
+    "Out 'n' About Treehouse Treesort": "assets/images/treehouse_resort.png",
+    "Kerbyville Inn": "assets/images/rv_park_modern.png", // Using modern as fallback for Inn
+    "Vertical Horizons Treehouse": "assets/images/treehouse_resort.png",
+    "The Lodge at Riverside": "assets/images/riverfront_camping.png" // Added for ancillary cover
 };
 
 // Website Mapping
