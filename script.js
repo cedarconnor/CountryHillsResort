@@ -92,7 +92,6 @@ function drawRoutes() {
     routeLayers = [];
 
     // 1. US-199 (Redwood Hwy) - High Traffic Artery
-    // Approximated points for visual flow
     const hwy199 = [
         [42.44, -123.33], // Towards Grants Pass
         [42.35, -123.41],
@@ -111,21 +110,6 @@ function drawRoutes() {
     }).bindTooltip("<b>US-199 (Redwood Hwy)</b><br>Major Tourist Artery", { sticky: true });
 
     // 2. OR-46 (Caves Hwy) - Designation Funnel
-    const hwy46 = [
-        [42.1632, -123.6482], // Cave Junction
-        [42.13, -123.60],
-        [42.1156, -123.6495], // Passing Target Property (Rough alignment fix needed visually?)
-        // Wait, Target is 42.1156, -123.6495 which is near the start?
-        // Actually 7901 Caves Hwy is ~12 miles east of CJ.
-        // Let's refine geometry: generally South-East.
-        [42.13, -123.55],
-        [42.11, -123.48],
-        [42.0989, -123.4056] // Oregon Caves
-    ];
-    // Re-correcting OR-46 visual path for "Schematic" truth
-    // Cave Junction -> Target -> Caves
-    // If Target is at 42.1156, -123.6495, that is actually very close to CJ.
-    // Let's draw it flowing THROUGH the target lat/lng if logical.
     const hwy46_schematic = [
         [42.1632, -123.6482], // Start at CJ
         [42.12, -123.65], // Near Target
@@ -139,8 +123,6 @@ function drawRoutes() {
         opacity: 0.8,
         lineJoin: 'round'
     }).bindTooltip("<b>OR-46 (Caves Hwy)</b><br>Sole Route to National Monument<br><i>Traffic passes Subject Property</i>", { sticky: true });
-
-    // Add Arrows or Flow indicators? (Simplified: Just lines for now)
 
     routeLayers.push(route199);
     routeLayers.push(route46);
@@ -160,8 +142,6 @@ window.toggleRoutes = () => {
     } else {
         drawRoutes();
         btn.classList.add('active');
-        // Fit bounds to see the whole route context?
-        // map.fitBounds(L.latLngBounds([[42.44, -123.33], [41.95, -123.75], [42.0989, -123.4056]]));
     }
 };
 
@@ -190,15 +170,15 @@ window.setFilter = (type) => {
     renderCompetitors();
 };
 
-// Image Mapping
+// Image Mapping (Using placeholders for reliability until hosted)
 const COMPETITOR_IMAGES = {
-    "KOA Journey": "https://koa.com/content/campgrounds/cave-junction/header/header-3.jpg",
-    "Laughing Alpaca": "https://www.laughingalpacacampground.com/img/slider/slide3.jpg",
-    "Ol' Jo": "https://oljorvcampground.com/img/River.jpg",
-    "Lone Mountain RV": "https://www.lonemountainresort.com/images/slider/slide1.jpg",
-    "Out 'n' About Treehouse Treesort": "https://treehouseparadise.com/wp-content/uploads/2016/06/majestree-1.jpg",
-    "Kerbyville Inn": "https://www.kerbyvilleinn.com/images/slider/slide1.jpg",
-    "Vertical Horizons Treehouse": "https://treehouseparadise.com/wp-content/uploads/2016/06/majestree-1.jpg" // Fallback/Placeholder
+    "KOA Journey": "https://placehold.co/600x400/2c3e50/ffffff?text=KOA+Journey",
+    "Laughing Alpaca": "https://placehold.co/600x400/2c3e50/ffffff?text=Laughing+Alpaca",
+    "Ol' Jo": "https://placehold.co/600x400/2c3e50/ffffff?text=Ol'+Jo+RV",
+    "Lone Mountain RV": "https://placehold.co/600x400/2c3e50/ffffff?text=Lone+Mountain",
+    "Out 'n' About Treehouse Treesort": "https://placehold.co/600x400/2c3e50/ffffff?text=Treehouse",
+    "Kerbyville Inn": "https://placehold.co/600x400/2c3e50/ffffff?text=Kerbyville+Inn",
+    "Vertical Horizons Treehouse": "https://placehold.co/600x400/2c3e50/ffffff?text=Vertical+Horizons"
 };
 
 // Direct Competitor Locations
@@ -217,6 +197,8 @@ function renderCompetitors() {
 
     let directUnits = 0;
     let ancillaryUnits = 0;
+    let directCount = 0;
+    let ancillaryCount = 0;
 
     // Create Sub-Lists
     const directList = document.createElement('div');
@@ -249,8 +231,13 @@ function renderCompetitors() {
 
         // Stats
         const rooms = parseInt(comp['Room Count']) || 0;
-        if (isDirect) directUnits += rooms;
-        else ancillaryUnits += rooms;
+        if (isDirect) {
+            directUnits += rooms;
+            directCount++;
+        } else {
+            ancillaryUnits += rooms;
+            ancillaryCount++;
+        }
 
         // Marker
         const marker = L.marker([comp.lat, comp.lng], { icon: competitorIcon })
@@ -300,20 +287,12 @@ function renderCompetitors() {
     if (hasAncillary) listContainer.appendChild(ancillaryList);
 
     // Update Dashboard Stats
-    // We need to split the stats logic in HTML or just reuse ids
-    // For now, let's inject into the existing or new IDs
-    const totalEl = document.getElementById('stat-total-units');
-    if (totalEl) totalEl.innerText = directUnits + ancillaryUnits;
-
-    // We will update the DOM in index.html to have separate counters, 
-    // but for safety check if they exist
-    const directEl = document.getElementById('stat-direct-units');
-    const ancillaryEl = document.getElementById('stat-ancillary-units');
-
-    if (directEl) directEl.innerText = directUnits;
-    if (ancillaryEl) ancillaryEl.innerText = ancillaryUnits;
-
-    document.getElementById('stat-count').innerText = competitorMarkers.length;
+    if (document.getElementById('stat-direct-units')) {
+        document.getElementById('stat-direct-units').innerText = directUnits;
+        document.getElementById('stat-ancillary-units').innerText = ancillaryUnits;
+        document.getElementById('stat-direct-count').innerText = directCount;
+        document.getElementById('stat-ancillary-count').innerText = ancillaryCount;
+    }
 }
 
 // Show Target Details (Default View)
